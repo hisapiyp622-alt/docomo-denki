@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#b3163c" />
+<title>ドコモでんきシミュレーター</title>
+
+<!-- ホーム画面追加(PWA)対応 -->
+<link rel="manifest" href="manifest.json" />
+<link rel="apple-touch-icon" href="icon.svg" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="でんき" />
+
+<link rel="stylesheet" href="style.css?v=1" />
+</head>
+<body>
+
+<header class="app-header">
+  <div class="header-inner">
+    <h1 class="app-title">ドコモでんきシミュレーター</h1>
+  </div>
+  <p class="header-sub">関西電力エリア(従量電灯A相当)・燃料費調整対応・非公式の個人用ツール</p>
+</header>
+
+<main class="container">
+
+  <!-- 入力エリア -->
+  <section class="input-area">
+    <div class="field">
+      <label for="inKwh">月間使用量 <span class="unit">(kWh)</span></label>
+      <input id="inKwh" type="text" inputmode="numeric" autocomplete="off" />
+      <p class="field-note">検針票・関電/ドコモでんきアプリの「使用量」の数字。</p>
+    </div>
+
+    <div class="field">
+      <label for="inPlan">プラン</label>
+      <select id="inPlan"></select>
+    </div>
+
+    <div class="field">
+      <label for="inFuel">燃料費調整単価 <span class="unit">(円/kWh・マイナス可)</span></label>
+      <input id="inFuel" type="text" inputmode="text" autocomplete="off" />
+      <p class="field-note" id="fuelNote">毎月変わります。プリセット: <span id="fuelPresets"></span></p>
+    </div>
+
+    <div class="field">
+      <label for="inSaiene">再エネ賦課金単価 <span class="unit">(円/kWh)</span></label>
+      <input id="inSaiene" type="text" inputmode="decimal" autocomplete="off" />
+      <p class="field-note" id="saieneNote"></p>
+    </div>
+
+    <div class="field">
+      <label for="inPoint">dポイント還元</label>
+      <select id="inPoint"></select>
+      <p class="field-note" id="pointNote"></p>
+    </div>
+  </section>
+
+  <!-- 結果エリア -->
+  <section class="result-area">
+    <div class="result-card primary">
+      <p class="result-label">月額料金(税込)</p>
+      <p class="result-amount" id="outTotal">—</p>
+      <p class="result-note" id="outTotalNote"></p>
+    </div>
+
+    <div class="result-card point">
+      <p class="result-label">dポイント還元 → 実質負担</p>
+      <p class="result-amount" id="outNet">—</p>
+      <p class="result-note" id="outPointNote"></p>
+    </div>
+
+    <div class="breakdown-card">
+      <h2 class="breakdown-title">内訳</h2>
+      <dl class="breakdown-list" id="breakdownList"></dl>
+      <p class="breakdown-note" id="breakdownNote"></p>
+    </div>
+
+    <details class="process-accordion">
+      <summary>計算過程・単価表を見る</summary>
+      <div id="outProcess" class="process-body"></div>
+    </details>
+  </section>
+</main>
+
+<footer class="app-footer">
+  <div class="footer-actions">
+    <button id="resetBtn" class="btn-ghost danger" type="button">リセット</button>
+  </div>
+  <p class="disclaimer" id="disclaimer">本アプリは非公式の概算シミュレーターです。実際の請求額は検針期間・割引・端数処理等により異なります。燃料費調整単価・再エネ賦課金は毎月/毎年度変わるため、最新値はドコモでんき公式でご確認ください。</p>
+</footer>
+
+<script src="denki.js?v=1"></script>
+<script src="app.js?v=1"></script>
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js").catch(() => {});
+}
+</script>
+</body>
+</html>
