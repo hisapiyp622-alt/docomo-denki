@@ -13,7 +13,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="でんき" />
 
-<link rel="stylesheet" href="style.css?v=1" />
+<link rel="stylesheet" href="style.css?v=2" />
 </head>
 <body>
 
@@ -54,6 +54,7 @@
     <div class="field">
       <label for="inPoint">dポイント還元</label>
       <select id="inPoint"></select>
+      <label class="check-label"><input id="inGas" type="checkbox" /> ドコモガスをセット契約中(還元率+2%)</label>
       <p class="field-note" id="pointNote"></p>
     </div>
   </section>
@@ -93,7 +94,7 @@
 </footer>
 
 <script src="denki.js?v=1"></script>
-<script src="app.js?v=1"></script>
+<script src="app.js?v=2"></script>
 <script>
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("sw.js").catch(() => {});

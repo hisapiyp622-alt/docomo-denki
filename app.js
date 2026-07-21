@@ -23,6 +23,7 @@ const inPlan = $("inPlan");
 const inFuel = $("inFuel");
 const inSaiene = $("inSaiene");
 const inPoint = $("inPoint");
+const inGas = $("inGas");
 const fuelPresets = $("fuelPresets");
 const outTotal = $("outTotal");
 const outTotalNote = $("outTotalNote");
@@ -80,7 +81,7 @@ function buildPointSelect() {
   // ガスセットの選択肢は簡易化のためチェック相当のoptionを付けず、還元率に+2%する別項目にはしない
   if (!opts.find((p) => p.key === state.pointKey)) state.pointKey = opts[0].key;
   inPoint.value = state.pointKey;
-  pointNote.textContent = "還元対象は基本料金+電力量料金(燃調・再エネ除く)の税抜額。ドコモガスセット契約中は表示の還元率に+2%されます(下の内訳で加算可)。";
+  pointNote.textContent = "還元対象は基本料金+電力量料金(燃調・再エネ除く)の税抜額。ガスセットにチェックすると還元率に+2%されます。";
 }
 
 function buildFuelPresets() {
@@ -120,6 +121,7 @@ inSaiene.addEventListener("input", () => { state.saieneUnit = parseNum(inSaiene.
 
 inPlan.addEventListener("change", () => { state.plan = inPlan.value; buildPointSelect(); saveState(); render(); });
 inPoint.addEventListener("change", () => { state.pointKey = inPoint.value; saveState(); render(); });
+inGas.addEventListener("change", () => { state.gasSet = inGas.checked; saveState(); render(); });
 
 resetBtn.addEventListener("click", () => {
   if (!confirm("入力値をデフォルトに戻します。よろしいですか？")) return;
@@ -133,6 +135,7 @@ function syncInputs() {
   inFuel.value = String(state.fuelUnit);
   inSaiene.value = String(state.saieneUnit);
   inPoint.value = state.pointKey;
+  inGas.checked = !!state.gasSet;
 }
 
 function currentPointPct() {
@@ -160,7 +163,7 @@ function render() {
   outTotalNote.textContent = `${r.kwh}kWh・燃調${fuelLabel} ${state.fuelUnit >= 0 ? "+" : ""}${state.fuelUnit}円/kWh・再エネ${state.saieneUnit}円/kWh`;
 
   outNet.textContent = `${r.points.toLocaleString()}pt → ${fmt(r.net)}`;
-  outPointNote.textContent = `還元率${r.pct}%(対象額 税抜${r.taxExcl.toLocaleString()}円の100円ごと)。ポイントを差し引いた実質負担額です。`;
+  outPointNote.textContent = `還元率${r.pct}%${state.gasSet ? "(ガスセット+2%込)" : ""}(対象額 税抜${r.taxExcl.toLocaleString()}円の100円ごと)。ポイントを差し引いた実質負担額です。`;
 
   // 内訳
   let html = "";
