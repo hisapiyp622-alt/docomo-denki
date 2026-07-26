@@ -27,14 +27,17 @@ const DENKI_CONSTANTS = {
       { key: "b05", label: "対象回線なし × その他(0.5%)", pct: 0.5 },
     ],
     green: [
-      { key: "g20", label: "対象回線 × dカードPLATINUM(初年度20%)", pct: 20 },
-      { key: "g10", label: "対象回線 × dカードGOLD/GOLD U(10%)", pct: 10 },
-      { key: "g9", label: "対象回線 × GOLD系会員・他の支払い(9%)", pct: 9 },
       { key: "g5", label: "対象回線 × 一般dカード払い(5%)", pct: 5 },
+      { key: "g10", label: "対象回線 × dカードGOLD/GOLD U払い(10%)", pct: 10 },
+      { key: "g20", label: "対象回線 × dカードPLATINUM払い(初年度20%・2年目以降10〜20%)", pct: 20 },
+      { key: "g9", label: "対象回線 × GOLD/PLATINUM会員でdカード以外の支払い(9%)", pct: 9 },
+      { key: "g4", label: "対象回線 × 一般dカード会員でdカード以外の支払い(4%)", pct: 4 },
       { key: "g2", label: "対象回線なし × dカード払い(2%)", pct: 2 },
       { key: "g1", label: "対象回線なし × その他(1%)", pct: 1 },
     ],
   },
+  // プラン切替時のデフォルト還元(控えめな条件にする)
+  pointDefaults: { basic: "b2", green: "g5" },
   gasSetBonusPct: 2, // ドコモガスセットで+2%(対象ガスエリアのみ)
 
   // ---- エリア別設定 ----

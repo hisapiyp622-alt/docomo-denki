@@ -97,7 +97,7 @@ function buildPointSelect() {
     o.value = p.key; o.textContent = p.label;
     inPoint.appendChild(o);
   }
-  if (!opts.find((p) => p.key === state.pointKey)) state.pointKey = opts[0].key;
+  if (!opts.find((p) => p.key === state.pointKey)) state.pointKey = DENKI_CONSTANTS.pointDefaults[state.plan] || opts[0].key;
   inPoint.value = state.pointKey;
   pointNote.textContent = "還元対象は基本料金+電力量料金(燃調・再エネ除く)の税抜額。ガスセットにチェックすると還元率に+2%されます。";
 }
