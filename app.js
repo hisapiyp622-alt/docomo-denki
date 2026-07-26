@@ -89,8 +89,18 @@ function buildPlanSelect() {
   inPlan.value = state.plan;
 }
 
+// Greenの還元率はエリア別(四国は関西より低い)。旧保存キーは新キーへ移行
+const LEGACY_POINT_KEYS = { g5: "g_normal", g10: "g_gold", g20: "g_plat", g9: "g_goldOther", g4: "g_normalOther", g2: "g_none2", g1: "g_none1" };
+
+function pointOpts() {
+  return state.plan === "green"
+    ? DENKI_CONSTANTS.greenPointOptions(state.area)
+    : DENKI_CONSTANTS.pointOptions.basic;
+}
+
 function buildPointSelect() {
-  const opts = DENKI_CONSTANTS.pointOptions[state.plan];
+  if (LEGACY_POINT_KEYS[state.pointKey]) state.pointKey = LEGACY_POINT_KEYS[state.pointKey];
+  const opts = pointOpts();
   inPoint.innerHTML = "";
   for (const p of opts) {
     const o = document.createElement("option");
@@ -99,7 +109,9 @@ function buildPointSelect() {
   }
   if (!opts.find((p) => p.key === state.pointKey)) state.pointKey = DENKI_CONSTANTS.pointDefaults[state.plan] || opts[0].key;
   inPoint.value = state.pointKey;
-  pointNote.textContent = "還元対象は基本料金+電力量料金(燃調・再エネ除く)の税抜額。ガスセットにチェックすると還元率に+2%されます。";
+  pointNote.textContent = state.plan === "green"
+    ? "還元対象は基本料金+電力量料金(燃調・再エネ除く)の税抜額。Greenの還元率はエリアによって異なります。ガスセットで+2%。"
+    : "還元対象は基本料金+電力量料金(燃調・再エネ除く)の税抜額。ガスセットにチェックすると還元率に+2%されます。";
 }
 
 function applyFuelPreset(p) {
@@ -127,10 +139,11 @@ function buildFuelPresets() {
 // ===== 入力バインド =====
 inArea.addEventListener("change", () => {
   state.area = inArea.value;
-  // エリアを変えたら最新月のプリセットを適用し直す
+  // エリアを変えたら最新月のプリセットと還元率選択肢(Greenはエリア別)を再構築
   const A = areaConf();
   buildFuelPresets();
   applyFuelPreset(A.fuelPresets[A.fuelPresets.length - 1]);
+  buildPointSelect();
   saveState(); render();
 });
 
@@ -169,8 +182,7 @@ function syncInputs() {
 }
 
 function currentPointPct() {
-  const opts = DENKI_CONSTANTS.pointOptions[state.plan];
-  const p = opts.find((o) => o.key === state.pointKey);
+  const p = pointOpts().find((o) => o.key === state.pointKey);
   return p ? p.pct : 0;
 }
 

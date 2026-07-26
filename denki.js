@@ -18,7 +18,9 @@ const DENKI_CONSTANTS = {
     fy2025: 3.98, // 2025年5月分〜2026年4月分
   },
 
-  // dポイント還元(全国共通。還元対象=最低料金+電力量料金の税抜100円ごと。燃調・再エネは対象外)
+  // dポイント還元(還元対象=最低料金+電力量料金の税抜100円ごと。燃調・再エネは対象外)
+  // Basicは全エリア共通。★Greenはエリア別★(各エリアのgreenPointDataを使用)
+  // 出典: https://denki.docomo.ne.jp/assets_brand/json/region.json (公式ページの還元率表の実データ)
   pointOptions: {
     basic: [
       { key: "b2", label: "対象回線プラン × dカード払い(2%)", pct: 2 },
@@ -26,18 +28,23 @@ const DENKI_CONSTANTS = {
       { key: "b1b", label: "対象回線なし × dカード払い(1%)", pct: 1 },
       { key: "b05", label: "対象回線なし × その他(0.5%)", pct: 0.5 },
     ],
-    green: [
-      { key: "g5", label: "対象回線 × 一般dカード払い(5%)", pct: 5 },
-      { key: "g10", label: "対象回線 × dカードGOLD/GOLD U払い(10%)", pct: 10 },
-      { key: "g20", label: "対象回線 × dカードPLATINUM払い(初年度20%・2年目以降10〜20%)", pct: 20 },
-      { key: "g9", label: "対象回線 × GOLD/PLATINUM会員でdカード以外の支払い(9%)", pct: 9 },
-      { key: "g4", label: "対象回線 × 一般dカード会員でdカード以外の支払い(4%)", pct: 4 },
-      { key: "g2", label: "対象回線なし × dカード払い(2%)", pct: 2 },
-      { key: "g1", label: "対象回線なし × その他(1%)", pct: 1 },
-    ],
   },
   // プラン切替時のデフォルト還元(控えめな条件にする)
-  pointDefaults: { basic: "b2", green: "g5" },
+  pointDefaults: { basic: "b2", green: "g_normal" },
+
+  // Greenのエリア別還元率から選択肢を生成
+  greenPointOptions(areaKey) {
+    const g = (this.areas[areaKey] || this.areas.kansai).greenPointData;
+    return [
+      { key: "g_normal", label: `対象回線 × 一般dカード払い(${g.normal}%)`, pct: g.normal },
+      { key: "g_gold", label: `対象回線 × dカードGOLD/GOLD U払い(${g.gold}%)`, pct: g.gold },
+      { key: "g_plat", label: `対象回線 × dカードPLATINUM払い(初年度${g.plat1}%・2年目${g.plat2Low}〜${g.plat2High}%)`, pct: g.plat1 },
+      { key: "g_goldOther", label: `対象回線 × GOLD/PLATINUM会員でdカード以外の支払い(${g.goldOther}%)`, pct: g.goldOther },
+      { key: "g_normalOther", label: `対象回線 × 一般dカード会員でdカード以外(${g.normalOther}%)`, pct: g.normalOther },
+      { key: "g_none2", label: `対象回線なし × dカード払い(${g.noLineCard}%)`, pct: g.noLineCard },
+      { key: "g_none1", label: `対象回線なし × その他(${g.noLineOther}%)`, pct: g.noLineOther },
+    ];
+  },
   gasSetBonusPct: 2, // ドコモガスセットで+2%(対象ガスエリアのみ)
 
   // ---- エリア別設定 ----
@@ -63,6 +70,8 @@ const DENKI_CONSTANTS = {
         { key: "2026-07", label: "26年7月分", docomo: { fix: 46.04, unit: 3.07 }, reg: { fix: 33.66, unit: 2.24 } },
         { key: "2026-08", label: "26年8月分(補助込)", docomo: { fix: -0.52, unit: -0.03 }, reg: { fix: -18.84, unit: -1.26 } },
       ],
+      // Green還元率(関西・region.json 2026-07-26確認)
+      greenPointData: { plat1: 20, plat2High: 20, plat2Low: 10, gold: 10, goldOther: 9, normal: 5, normalOther: 4, noLineCard: 2, noLineOther: 1 },
     },
     // 四国: 2026-07-26調査・検証済み。四電モデル料金(260kWh・26年6月8,454円/7月8,501円)を完全再現
     // 出典: https://www.yonden.co.jp/customer/price/plan/juryo_a.html
@@ -88,6 +97,8 @@ const DENKI_CONSTANTS = {
         { key: "2026-07", label: "26年7月分", docomo: { fix: -74.20, unit: -6.75 }, reg: { fix: -74.20, unit: -6.75 } },
         { key: "2026-08", label: "26年8月分(補助込)", docomo: { fix: -107.78, unit: -9.80 }, reg: { fix: -107.78, unit: -9.80 } },
       ],
+      // Green還元率(★四国は関西より低い・region.json 2026-07-26確認)
+      greenPointData: { plat1: 12, plat2High: 12, plat2Low: 6, gold: 6, goldOther: 5, normal: 4, normalOther: 3, noLineCard: 2, noLineOther: 1 },
     },
   },
 };
