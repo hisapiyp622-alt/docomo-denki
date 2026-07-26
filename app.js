@@ -4,7 +4,7 @@ const STORAGE_KEY = "denkiSim.v1";
 
 const DEFAULTS = {
   area: "kansai",
-  kwh: 260,
+  kwh: 0,
   plan: "basic",
   fuelKey: "2026-07",       // プリセット選択中の月(手入力すると "custom")
   fuelFix: 46.04,
