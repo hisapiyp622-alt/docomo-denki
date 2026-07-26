@@ -1,12 +1,12 @@
 // ドコモでんきシミュレーター — service worker(キャッシュファースト・オフライン動作)
 // ファイルを更新したら CACHE_NAME のバージョンと index.html 側の ?v=N を必ず上げること。
-const CACHE_NAME = "denki-v2";
+const CACHE_NAME = "denki-v3";
 const ASSETS = [
   "./",
   "./index.html",
   "./style.css?v=2",
-  "./app.js?v=2",
-  "./denki.js?v=1",
+  "./app.js?v=3",
+  "./denki.js?v=2",
   "./manifest.json",
   "./icon.svg",
 ];

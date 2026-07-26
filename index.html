@@ -21,7 +21,7 @@
   <div class="header-inner">
     <h1 class="app-title">ドコモでんきシミュレーター</h1>
   </div>
-  <p class="header-sub">関西電力エリア(従量電灯A相当)・燃料費調整対応・非公式の個人用ツール</p>
+  <p class="header-sub">関西・四国電力エリア(従量電灯A相当)・燃料費調整対応・非公式の個人用ツール</p>
 </header>
 
 <main class="container">
@@ -32,6 +32,11 @@
       <label for="inKwh">月間使用量 <span class="unit">(kWh)</span></label>
       <input id="inKwh" type="text" inputmode="numeric" autocomplete="off" />
       <p class="field-note">検針票・関電/ドコモでんきアプリの「使用量」の数字。</p>
+    </div>
+
+    <div class="field">
+      <label for="inArea">エリア</label>
+      <select id="inArea"></select>
     </div>
 
     <div class="field">
@@ -93,8 +98,8 @@
   <p class="disclaimer" id="disclaimer">本アプリは非公式の概算シミュレーターです。実際の請求額は検針期間・割引・端数処理等により異なります。燃料費調整単価・再エネ賦課金は毎月/毎年度変わるため、最新値はドコモでんき公式でご確認ください。</p>
 </footer>
 
-<script src="denki.js?v=1"></script>
-<script src="app.js?v=2"></script>
+<script src="denki.js?v=2"></script>
+<script src="app.js?v=3"></script>
 <script>
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("sw.js").catch(() => {});
