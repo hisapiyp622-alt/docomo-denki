@@ -6,6 +6,10 @@
 // 出典:
 //  - ドコモでんき料金単価表: https://denki.docomo.ne.jp/plan/price/
 //  - 燃料費等調整単価: https://denki.docomo.ne.jp/fuel-cost/
+//    過去分の実データ: https://denki.docomo.ne.jp/unitprice/adjust/FL21000_adjust_yyyyMM.JSON
+//    (エリアコード: 06=関西 pattern10 / 08=四国 pattern301。⚠️07は中国電力なので注意)
+//    各プリセットのsaiene=その月の再エネ賦課金単価(〜26年4月分3.98/26年5月分〜4.18)
+//    reg(規制料金の燃調・比較用)は検証済みの月のみ。nullの月は比較非表示
 //  - 燃調上限廃止のお知らせ: https://denki.docomo.ne.jp/notice/detail/025.html
 //  - 関電 燃調プレス(例:7月分): https://www.kepco.co.jp/corporate/pr/2026/pdf/20260528_1j.pdf
 //  - 再エネ賦課金2026年度: https://www.kepco.co.jp/corporate/notice/notice_pdf/20260323_1.pdf
@@ -65,10 +69,19 @@ const DENKI_CONSTANTS = {
         { upTo: Infinity, unit: 28.59 },
       ],
       fuelPresets: [
-        { key: "2026-05", label: "26年5月分", docomo: { fix: 43.56, unit: 2.90 }, reg: { fix: 33.66, unit: 2.24 } },
-        { key: "2026-06", label: "26年6月分", docomo: { fix: 44.55, unit: 2.97 }, reg: { fix: 33.66, unit: 2.24 } },
-        { key: "2026-07", label: "26年7月分", docomo: { fix: 46.04, unit: 3.07 }, reg: { fix: 33.66, unit: 2.24 } },
-        { key: "2026-08", label: "26年8月分(補助込)", docomo: { fix: -0.52, unit: -0.03 }, reg: { fix: -18.84, unit: -1.26 } },
+        { key: "2025-08", label: "25年8月分", saiene: 3.98, docomo: { fix: 15.05, unit: 1.0 }, reg: null },
+        { key: "2025-09", label: "25年9月分", saiene: 3.98, docomo: { fix: 5.58, unit: 0.37 }, reg: null },
+        { key: "2025-10", label: "25年10月分", saiene: 3.98, docomo: { fix: 9.6, unit: 0.64 }, reg: null },
+        { key: "2025-11", label: "25年11月分", saiene: 3.98, docomo: { fix: 39.35, unit: 2.62 }, reg: null },
+        { key: "2025-12", label: "25年12月分", saiene: 3.98, docomo: { fix: 39.11, unit: 2.61 }, reg: null },
+        { key: "2026-01", label: "26年1月分", saiene: 3.98, docomo: { fix: 39.11, unit: 2.61 }, reg: null },
+        { key: "2026-02", label: "26年2月分", saiene: 3.98, docomo: { fix: -28.64, unit: -1.91 }, reg: null },
+        { key: "2026-03", label: "26年3月分", saiene: 3.98, docomo: { fix: -26.91, unit: -1.79 }, reg: null },
+        { key: "2026-04", label: "26年4月分", saiene: 3.98, docomo: { fix: 20.32, unit: 1.35 }, reg: null },
+        { key: "2026-05", label: "26年5月分", saiene: 4.18, docomo: { fix: 43.56, unit: 2.9 }, reg: { fix: 33.66, unit: 2.24 } },
+        { key: "2026-06", label: "26年6月分", saiene: 4.18, docomo: { fix: 44.55, unit: 2.97 }, reg: { fix: 33.66, unit: 2.24 } },
+        { key: "2026-07", label: "26年7月分", saiene: 4.18, docomo: { fix: 46.04, unit: 3.07 }, reg: { fix: 33.66, unit: 2.24 } },
+        { key: "2026-08", label: "26年8月分", saiene: 4.18, docomo: { fix: -0.52, unit: -0.03 }, reg: { fix: -18.84, unit: -1.26 } },
       ],
       // Green還元率(関西・region.json 2026-07-26確認)
       greenPointData: { plat1: 20, plat2High: 20, plat2Low: 10, gold: 10, goldOther: 9, normal: 5, normalOther: 4, noLineCard: 2, noLineOther: 1 },
@@ -92,10 +105,19 @@ const DENKI_CONSTANTS = {
         { upTo: Infinity, unit: 40.78 },
       ],
       fuelPresets: [
-        { key: "2026-05", label: "26年5月分", docomo: { fix: -76.57, unit: -6.96 }, reg: { fix: -76.57, unit: -6.96 } },
-        { key: "2026-06", label: "26年6月分", docomo: { fix: -76.23, unit: -6.93 }, reg: { fix: -76.23, unit: -6.93 } },
-        { key: "2026-07", label: "26年7月分", docomo: { fix: -74.20, unit: -6.75 }, reg: { fix: -74.20, unit: -6.75 } },
-        { key: "2026-08", label: "26年8月分(補助込)", docomo: { fix: -107.78, unit: -9.80 }, reg: { fix: -107.78, unit: -9.80 } },
+        { key: "2025-08", label: "25年8月分", saiene: 3.98, docomo: { fix: -98.4, unit: -8.95 }, reg: null },
+        { key: "2025-09", label: "25年9月分", saiene: 3.98, docomo: { fix: -105.51, unit: -9.59 }, reg: null },
+        { key: "2025-10", label: "25年10月分", saiene: 3.98, docomo: { fix: -102.63, unit: -9.33 }, reg: null },
+        { key: "2025-11", label: "25年11月分", saiene: 3.98, docomo: { fix: -80.13, unit: -7.28 }, reg: null },
+        { key: "2025-12", label: "25年12月分", saiene: 3.98, docomo: { fix: -79.62, unit: -7.24 }, reg: null },
+        { key: "2026-01", label: "26年1月分", saiene: 3.98, docomo: { fix: -78.6, unit: -7.15 }, reg: null },
+        { key: "2026-02", label: "26年2月分", saiene: 3.98, docomo: { fix: -127.93, unit: -11.63 }, reg: null },
+        { key: "2026-03", label: "26年3月分", saiene: 3.98, docomo: { fix: -127.09, unit: -11.55 }, reg: null },
+        { key: "2026-04", label: "26年4月分", saiene: 3.98, docomo: { fix: -93.58, unit: -8.51 }, reg: null },
+        { key: "2026-05", label: "26年5月分", saiene: 4.18, docomo: { fix: -76.57, unit: -6.96 }, reg: { fix: -76.57, unit: -6.96 } },
+        { key: "2026-06", label: "26年6月分", saiene: 4.18, docomo: { fix: -76.23, unit: -6.93 }, reg: { fix: -76.23, unit: -6.93 } },
+        { key: "2026-07", label: "26年7月分", saiene: 4.18, docomo: { fix: -74.2, unit: -6.75 }, reg: { fix: -74.2, unit: -6.75 } },
+        { key: "2026-08", label: "26年8月分", saiene: 4.18, docomo: { fix: -107.78, unit: -9.8 }, reg: { fix: -107.78, unit: -9.8 } },
       ],
       // Green還元率(★四国は関西より低い・region.json 2026-07-26確認)
       greenPointData: { plat1: 12, plat2High: 12, plat2Low: 6, gold: 6, goldOther: 5, normal: 4, normalOther: 3, noLineCard: 2, noLineOther: 1 },

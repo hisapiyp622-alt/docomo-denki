@@ -6,11 +6,11 @@ const DEFAULTS = {
   area: "kansai",
   kwh: 0,
   plan: "basic",
-  fuelKey: "2026-07",       // プリセット選択中の月(手入力すると "custom")
-  fuelFix: 46.04,
-  fuelUnit: 3.07,
-  regFuelFix: 33.66,
-  regFuelUnit: 2.24,
+  fuelKey: "2026-08",       // 選択中の料金月(手入力すると "custom")
+  fuelFix: -0.52,
+  fuelUnit: -0.03,
+  regFuelFix: -18.84,
+  regFuelUnit: -1.26,
   saieneUnit: 4.18,
   pointKey: "b2",
   gasSet: false,
@@ -26,7 +26,7 @@ const inFuel = $("inFuel");
 const inSaiene = $("inSaiene");
 const inPoint = $("inPoint");
 const inGas = $("inGas");
-const fuelPresets = $("fuelPresets");
+const inFuelMonth = $("inFuelMonth");
 const outTotal = $("outTotal");
 const outTotalNote = $("outTotalNote");
 const outNet = $("outNet");
@@ -118,33 +118,47 @@ function applyFuelPreset(p) {
   state.fuelKey = p.key;
   state.fuelFix = p.docomo.fix;
   state.fuelUnit = p.docomo.unit;
-  state.regFuelFix = p.reg.fix;
-  state.regFuelUnit = p.reg.unit;
+  state.regFuelFix = p.reg ? p.reg.fix : null;   // regなしの月は比較非表示
+  state.regFuelUnit = p.reg ? p.reg.unit : null;
+  state.saieneUnit = p.saiene;                   // その月の再エネ賦課金を自動設定
   inFuel.value = String(p.docomo.unit);
+  inSaiene.value = String(p.saiene);
+  inFuelMonth.value = p.key;
 }
 
-function buildFuelPresets() {
+function buildFuelMonthSelect() {
   const A = areaConf();
-  fuelPresets.innerHTML = "";
-  for (const p of A.fuelPresets) {
-    const b = document.createElement("button");
-    b.type = "button";
-    b.className = "preset-btn";
-    b.textContent = `${p.label} ${p.docomo.unit >= 0 ? "+" : ""}${p.docomo.unit}円`;
-    b.addEventListener("click", () => { applyFuelPreset(p); saveState(); render(); });
-    fuelPresets.appendChild(b);
+  inFuelMonth.innerHTML = "";
+  // 新しい月を上に(直近13ヶ月)
+  for (const p of [...A.fuelPresets].reverse()) {
+    const o = document.createElement("option");
+    o.value = p.key;
+    o.textContent = `${p.label}(燃調 ${p.docomo.unit >= 0 ? "+" : ""}${p.docomo.unit}円/kWh・再エネ ${p.saiene}円)`;
+    inFuelMonth.appendChild(o);
   }
+  const custom = document.createElement("option");
+  custom.value = "custom";
+  custom.textContent = "手入力(下の単価欄で自由設定)";
+  inFuelMonth.appendChild(custom);
+  inFuelMonth.value = state.fuelKey;
 }
 
 // ===== 入力バインド =====
 inArea.addEventListener("change", () => {
   state.area = inArea.value;
-  // エリアを変えたら最新月のプリセットと還元率選択肢(Greenはエリア別)を再構築
+  // エリアを変えたら同じ月のプリセット(なければ最新月)と還元率選択肢を再構築
   const A = areaConf();
-  buildFuelPresets();
-  applyFuelPreset(A.fuelPresets[A.fuelPresets.length - 1]);
+  buildFuelMonthSelect();
+  const p = A.fuelPresets.find((x) => x.key === state.fuelKey) || A.fuelPresets[A.fuelPresets.length - 1];
+  applyFuelPreset(p);
   buildPointSelect();
   saveState(); render();
+});
+
+inFuelMonth.addEventListener("change", () => {
+  if (inFuelMonth.value === "custom") { state.fuelKey = "custom"; saveState(); render(); return; }
+  const p = areaConf().fuelPresets.find((x) => x.key === inFuelMonth.value);
+  if (p) { applyFuelPreset(p); saveState(); render(); }
 });
 
 inKwh.addEventListener("input", () => { state.kwh = parseNum(inKwh.value); saveState(); render(); });
@@ -156,6 +170,9 @@ inFuel.addEventListener("input", () => {
   state.fuelUnit = u;
   state.fuelFix = Math.round(u * A.minKwh * 100) / 100; // 最低料金部分≒minKwh×単価
   state.fuelKey = "custom";
+  state.regFuelFix = null; // 手入力時は比較非表示
+  state.regFuelUnit = null;
+  inFuelMonth.value = "custom";
   saveState(); render();
 });
 
@@ -168,13 +185,14 @@ inGas.addEventListener("change", () => { state.gasSet = inGas.checked; saveState
 resetBtn.addEventListener("click", () => {
   if (!confirm("入力値をデフォルトに戻します。よろしいですか？")) return;
   state = { ...DEFAULTS };
-  saveState(); buildFuelPresets(); syncInputs(); buildPointSelect(); render();
+  saveState(); buildFuelMonthSelect(); syncInputs(); buildPointSelect(); render();
 });
 
 function syncInputs() {
   inArea.value = state.area;
   inKwh.value = state.kwh.toLocaleString("ja-JP");
   inPlan.value = state.plan;
+  inFuelMonth.value = state.fuelKey;
   inFuel.value = String(state.fuelUnit);
   inSaiene.value = String(state.saieneUnit);
   inPoint.value = state.pointKey;
@@ -198,8 +216,8 @@ function render() {
     saieneUnit: state.saieneUnit,
     pointPct: currentPointPct(),
     gasSet: state.gasSet,
-    regFuelFix: state.regFuelFix,
-    regFuelUnit: state.regFuelUnit,
+    regFuelFix: state.regFuelFix == null ? undefined : state.regFuelFix,
+    regFuelUnit: state.regFuelUnit == null ? undefined : state.regFuelUnit,
   });
 
   outTotal.textContent = fmt(r.total);
@@ -243,9 +261,10 @@ function buildProcessHtml(r, A) {
   h += tr("120〜300kWh", A.tiers[1].unit + "円/kWh");
   h += tr("300kWh超", A.tiers[2].unit + "円/kWh");
   h += `</table>`;
-  h += `<h3>燃料費等調整(毎月変動・ドコモは上限なし)</h3><table>`;
+  h += `<h3>燃料費等調整(過去1年分・ドコモは上限なし)</h3><table>`;
   for (const p of A.fuelPresets) {
-    h += tr(p.label, `${p.docomo.unit >= 0 ? "+" : ""}${p.docomo.unit}円/kWh`, `最低料金部分 ${p.docomo.fix >= 0 ? "+" : ""}${p.docomo.fix}円/月・規制料金は${p.reg.unit >= 0 ? "+" : ""}${p.reg.unit}円`);
+    const regTxt = p.reg ? `・規制料金は${p.reg.unit >= 0 ? "+" : ""}${p.reg.unit}円` : "";
+    h += tr(`${p.label}(再エネ${p.saiene}円)`, `${p.docomo.unit >= 0 ? "+" : ""}${p.docomo.unit}円/kWh`, `最低料金部分 ${p.docomo.fix >= 0 ? "+" : ""}${p.docomo.fix}円/月${regTxt}`);
   }
   h += tr("計算式", "", `最低料金部分の定額 + 単価×(使用量−${A.minKwh}kWh)`);
   h += tr("政府補助", "", "検針分26年8月・10月=3.5円/kWh、9月=4.5円/kWh値引き(プリセットの該当月は反映済み)");
@@ -265,6 +284,6 @@ function buildProcessHtml(r, A) {
 buildAreaSelect();
 buildPlanSelect();
 buildPointSelect();
-buildFuelPresets();
+buildFuelMonthSelect();
 syncInputs();
 render();

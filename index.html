@@ -45,9 +45,14 @@
     </div>
 
     <div class="field">
+      <label for="inFuelMonth">料金月の選択 <span class="unit">(過去1年分の燃調・再エネを自動設定)</span></label>
+      <select id="inFuelMonth"></select>
+    </div>
+
+    <div class="field">
       <label for="inFuel">燃料費調整単価 <span class="unit">(円/kWh・マイナス可)</span></label>
       <input id="inFuel" type="text" inputmode="text" autocomplete="off" />
-      <p class="field-note" id="fuelNote">毎月変わります。プリセット: <span id="fuelPresets"></span></p>
+      <p class="field-note" id="fuelNote">月を選ぶとその月の燃調単価と再エネ賦課金が自動で入ります。手入力もできます(手入力すると月選択は「手入力」になります)。</p>
     </div>
 
     <div class="field">
@@ -98,8 +103,8 @@
   <p class="disclaimer" id="disclaimer">本アプリは非公式の概算シミュレーターです。実際の請求額は検針期間・割引・端数処理等により異なります。燃料費調整単価・再エネ賦課金は毎月/毎年度変わるため、最新値はドコモでんき公式でご確認ください。</p>
 </footer>
 
-<script src="denki.js?v=4"></script>
-<script src="app.js?v=6"></script>
+<script src="denki.js?v=5"></script>
+<script src="app.js?v=7"></script>
 <script>
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("sw.js").catch(() => {});
