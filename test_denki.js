@@ -85,9 +85,22 @@ for (const [name, A] of Object.entries(DENKI_CONSTANTS.areas)) {
   }
   eq(`${name} 全13ヶ月の定額×単価整合+再エネ年度(0件不整合)`, bad, 0);
 }
-// 既知値スポット: 関西26年2月分(補助込マイナス)・四国25年9月分
-eq("関西26年2月分(-1.91)", DENKI_CONSTANTS.areas.kansai.fuelPresets.find(p => p.key === "2026-02").docomo.unit, -1.91);
-eq("四国25年9月分(-9.59)", DENKI_CONSTANTS.areas.shikoku.fuelPresets.find(p => p.key === "2025-09").docomo.unit, -9.59);
+// 既知値スポット(ローリングで窓から外れたらスキップ。自動更新を壊さないため)
+const KNOWN = [
+  ["kansai", "2026-02", -1.91], ["kansai", "2026-07", 3.07],
+  ["shikoku", "2025-09", -9.59], ["shikoku", "2026-07", -6.75],
+];
+for (const [area, key, unit] of KNOWN) {
+  const p = DENKI_CONSTANTS.areas[area].fuelPresets.find(x => x.key === key);
+  if (p) eq(`${area} ${key}(${unit})`, p.docomo.unit, unit);
+  else console.log(`--  ${area} ${key}: ローリング窓外のためスキップ`);
+}
+// 月キーが昇順で重複なしか(自動追記のズレ検知)
+for (const [name, A] of Object.entries(DENKI_CONSTANTS.areas)) {
+  const keys = A.fuelPresets.map(p => p.key);
+  const sorted = [...keys].sort();
+  eq(`${name} 月キーが昇順・重複なし`, JSON.stringify(keys) === JSON.stringify(sorted) && new Set(keys).size === keys.length, true);
+}
 
 console.log(failed === 0 ? "\n✅ 全テスト成功" : `\n❌ ${failed}件失敗`);
 process.exit(failed === 0 ? 0 : 1);
