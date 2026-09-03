@@ -65,12 +65,34 @@ eq("11kWh: 合計(637)", sk11.total, 637);
 eq("120kWh(4,007)", calcDenki({ area: "shikoku", kwh: 120, plan: "basic", fuelFix: 0, fuelUnit: 0, saieneUnit: 0, pointPct: 0 }).total, 4007);
 
 console.log("\n=== Green還元率のエリア別データ(region.json) ===");
-eq("関西GOLD(10)", DENKI_CONSTANTS.areas.kansai.greenPointData.gold, 10);
-eq("四国GOLD(6)", DENKI_CONSTANTS.areas.shikoku.greenPointData.gold, 6);
-eq("四国PLATINUM初年度(12)", DENKI_CONSTANTS.areas.shikoku.greenPointData.plat1, 12);
-eq("四国一般dカード(4)", DENKI_CONSTANTS.areas.shikoku.greenPointData.normal, 4);
-eq("四国オプション数(7)", DENKI_CONSTANTS.greenPointOptions("shikoku").length, 7);
-eq("関西g_plat pct(20)", DENKI_CONSTANTS.greenPointOptions("kansai").find(o => o.key === "g_plat").pct, 20);
+const pct = (area, month, key) => DENKI_CONSTANTS.greenPointOptions(area, month).find(o => o.key === key).pct;
+// エリア別(GOLD・一般はPLATINUM改定の影響を受けない)
+eq("関西GOLD(10)", pct("kansai", "2026-09", "g_gold"), 10);
+eq("四国GOLD(6)", pct("shikoku", "2026-09", "g_gold"), 6);
+eq("四国一般dカード(4)", pct("shikoku", "2026-09", "g_normal"), 4);
+eq("オプション数(9)", DENKI_CONSTANTS.greenPointOptions("shikoku", "2026-09").length, 9);
+
+console.log("\n=== PLATINUM仕様変更(26年11月検針分から) ===");
+// 〜26年10月検針分は旧料率
+eq("関西PLATINUM 26年10月分まで 最上位(20)", pct("kansai", "2026-10", "g_plat_hi"), 20);
+eq("関西PLATINUM 26年10月分まで 中位(15)", pct("kansai", "2026-10", "g_plat_mid"), 15);
+eq("四国PLATINUM 26年10月分まで 最上位(12)", pct("shikoku", "2026-10", "g_plat_hi"), 12);
+eq("四国PLATINUM 26年10月分まで 中位(9)", pct("shikoku", "2026-10", "g_plat_mid"), 9);
+// 26年11月検針分から新料率
+eq("関西PLATINUM 26年11月分から 最上位(12)", pct("kansai", "2026-11", "g_plat_hi"), 12);
+eq("関西PLATINUM 26年11月分から 中位(11)", pct("kansai", "2026-11", "g_plat_mid"), 11);
+eq("関西PLATINUM 26年11月分から 下位(10)", pct("kansai", "2026-11", "g_plat_low"), 10);
+eq("四国PLATINUM 26年11月分から 最上位(8)", pct("shikoku", "2026-11", "g_plat_hi"), 8);
+eq("四国PLATINUM 26年11月分から 中位(7)", pct("shikoku", "2026-11", "g_plat_mid"), 7);
+eq("四国PLATINUM 26年11月分から 下位(6)", pct("shikoku", "2026-11", "g_plat_low"), 6);
+// 改定後もGOLD・一般・回線なしは据え置き
+for (const [area, key, val] of [["kansai","g_gold",10],["kansai","g_normal",5],["kansai","g_none1",1],
+                                ["shikoku","g_gold",6],["shikoku","g_normal",4],["shikoku","g_none2",2]]) {
+  eq(`${area} ${key} は改定後も据え置き(${val})`, pct(area, "2026-11", key), val);
+}
+eq("切替判定 26-10=旧", DENKI_CONSTANTS.greenRatesFor("kansai", "2026-10").isNew, false);
+eq("切替判定 26-11=新", DENKI_CONSTANTS.greenRatesFor("kansai", "2026-11").isNew, true);
+eq("切替判定 27-01=新", DENKI_CONSTANTS.greenRatesFor("kansai", "2027-01").isNew, true);
 
 console.log("\n=== 過去1年分プリセットの整合性 ===");
 for (const [name, A] of Object.entries(DENKI_CONSTANTS.areas)) {

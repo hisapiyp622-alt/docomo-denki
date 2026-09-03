@@ -90,12 +90,22 @@ function buildPlanSelect() {
 }
 
 // Greenの還元率はエリア別(四国は関西より低い)。旧保存キーは新キーへ移行
-const LEGACY_POINT_KEYS = { g5: "g_normal", g10: "g_gold", g20: "g_plat", g9: "g_goldOther", g4: "g_normalOther", g2: "g_none2", g1: "g_none1" };
+const LEGACY_POINT_KEYS = {
+  g5: "g_normal", g10: "g_gold", g20: "g_plat_hi", g9: "g_goldOther", g4: "g_normalOther",
+  g2: "g_none2", g1: "g_none1", g_plat: "g_plat_hi",  // PLATINUM仕様変更でキーを細分化
+};
 
 function pointOpts() {
   return state.plan === "green"
-    ? DENKI_CONSTANTS.greenPointOptions(state.area)
+    ? DENKI_CONSTANTS.greenPointOptions(state.area, currentMonthKey())
     : DENKI_CONSTANTS.pointOptions.basic;
+}
+
+// 還元率の判定に使う検針月。手入力中は最新プリセット月を基準にする
+function currentMonthKey() {
+  if (state.fuelKey && state.fuelKey !== "custom") return state.fuelKey;
+  const ps = areaConf().fuelPresets;
+  return ps[ps.length - 1].key;
 }
 
 function buildPointSelect() {
@@ -109,9 +119,16 @@ function buildPointSelect() {
   }
   if (!opts.find((p) => p.key === state.pointKey)) state.pointKey = DENKI_CONSTANTS.pointDefaults[state.plan] || opts[0].key;
   inPoint.value = state.pointKey;
-  pointNote.textContent = state.plan === "green"
-    ? "還元対象は基本料金+電力量料金(燃調・再エネ除く)の税抜額。Greenの還元率はエリアによって異なります。ガスセットで+2%。"
-    : "還元対象は基本料金+電力量料金(燃調・再エネ除く)の税抜額。ガスセットにチェックすると還元率に+2%されます。";
+  if (state.plan === "green") {
+    const isNew = DENKI_CONSTANTS.greenRatesFor(state.area, currentMonthKey()).isNew;
+    pointNote.textContent =
+      "還元対象は基本料金+電力量料金(燃調・再エネ除く)の税抜額。Greenの還元率はエリア別。ガスセットで+2%。"
+      + (isNew
+        ? "【26年11月検針分〜の新料率で計算中】dカードPLATINUMの還元率・条件が変更されています。"
+        : "【〜26年10月検針分の料率で計算中】26年11月検針分からPLATINUMの還元率が下がります。");
+  } else {
+    pointNote.textContent = "還元対象は基本料金+電力量料金(燃調・再エネ除く)の税抜額。ガスセットにチェックすると還元率に+2%されます。";
+  }
 }
 
 function applyFuelPreset(p) {
@@ -158,7 +175,7 @@ inArea.addEventListener("change", () => {
 inFuelMonth.addEventListener("change", () => {
   if (inFuelMonth.value === "custom") { state.fuelKey = "custom"; saveState(); render(); return; }
   const p = areaConf().fuelPresets.find((x) => x.key === inFuelMonth.value);
-  if (p) { applyFuelPreset(p); saveState(); render(); }
+  if (p) { applyFuelPreset(p); buildPointSelect(); saveState(); render(); }
 });
 
 inKwh.addEventListener("input", () => { state.kwh = parseNum(inKwh.value); saveState(); render(); });
