@@ -84,7 +84,6 @@ const DENKI_CONSTANTS = {
         { upTo: Infinity, unit: 28.59 },
       ],
       fuelPresets: [
-        { key: "2025-10", label: "25年10月分", saiene: 3.98, docomo: { fix: 9.6, unit: 0.64 }, reg: null },
         { key: "2025-11", label: "25年11月分", saiene: 3.98, docomo: { fix: 39.35, unit: 2.62 }, reg: null },
         { key: "2025-12", label: "25年12月分", saiene: 3.98, docomo: { fix: 39.11, unit: 2.61 }, reg: null },
         { key: "2026-01", label: "26年1月分", saiene: 3.98, docomo: { fix: 39.11, unit: 2.61 }, reg: null },
@@ -97,6 +96,7 @@ const DENKI_CONSTANTS = {
         { key: "2026-08", label: "26年8月分", saiene: 4.18, docomo: { fix: -0.52, unit: -0.03 }, reg: { fix: -18.84, unit: -1.26 } },
         { key: "2026-09", label: "26年9月分", saiene: 4.18, docomo: { fix: -10.57, unit: -0.7 }, reg: null },
         { key: "2026-10", label: "26年10月分", saiene: 4.18, docomo: { fix: 12.84, unit: 0.86 }, reg: null },
+        { key: "2026-11", label: "26年11月分", saiene: 4.18, docomo: { fix: 71.28, unit: 4.75 }, reg: null },
       ],
       // Green還元率(関西・公式ページの新旧2表から・2026-09-04確認)
       greenPointOld: { platHi: 20, platMid: 15, platLow: 10, gold: 10, goldOther: 9, normal: 5, normalOther: 4, noLineCard: 2, noLineOther: 1 },
@@ -121,7 +121,6 @@ const DENKI_CONSTANTS = {
         { upTo: Infinity, unit: 40.78 },
       ],
       fuelPresets: [
-        { key: "2025-10", label: "25年10月分", saiene: 3.98, docomo: { fix: -102.63, unit: -9.33 }, reg: null },
         { key: "2025-11", label: "25年11月分", saiene: 3.98, docomo: { fix: -80.13, unit: -7.28 }, reg: null },
         { key: "2025-12", label: "25年12月分", saiene: 3.98, docomo: { fix: -79.62, unit: -7.24 }, reg: null },
         { key: "2026-01", label: "26年1月分", saiene: 3.98, docomo: { fix: -78.6, unit: -7.15 }, reg: null },
@@ -134,6 +133,7 @@ const DENKI_CONSTANTS = {
         { key: "2026-08", label: "26年8月分", saiene: 4.18, docomo: { fix: -107.78, unit: -9.8 }, reg: { fix: -107.78, unit: -9.8 } },
         { key: "2026-09", label: "26年9月分", saiene: 4.18, docomo: { fix: -111.84, unit: -10.17 }, reg: null },
         { key: "2026-10", label: "26年10月分", saiene: 4.18, docomo: { fix: -97.11, unit: -8.83 }, reg: null },
+        { key: "2026-11", label: "26年11月分", saiene: 4.18, docomo: { fix: -57.6, unit: -5.24 }, reg: null },
       ],
       // Green還元率(★四国は関西より低い・公式ページの新旧2表から・2026-09-04確認)
       greenPointOld: { platHi: 12, platMid: 9, platLow: 6, gold: 6, goldOther: 5, normal: 4, normalOther: 3, noLineCard: 2, noLineOther: 1 },
